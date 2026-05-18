@@ -1,0 +1,14 @@
+.DS_Store
+.AppleDouble
+.LSOverride
+
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+frontend/node_modules/
+frontend/build/
