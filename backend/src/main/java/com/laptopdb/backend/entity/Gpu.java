@@ -22,12 +22,10 @@ public class Gpu {
     @Column(nullable = false, length = 50)
     private String brand;
 
-    // ENGINEERING DECISION: UNIQUE constraint omitted to allow variants with different TDPs.
     @NotBlank(message = "Model name cannot be blank")
     @Column(name = "model_name", nullable = false, length = 100)
     private String modelName;
 
-    // NULLABLE FIELDS: Can be left null for integrated graphics (e.g., Iris Xe).
     @Column(name = "tdp_watt")
     private Integer tdpWatt;
 
