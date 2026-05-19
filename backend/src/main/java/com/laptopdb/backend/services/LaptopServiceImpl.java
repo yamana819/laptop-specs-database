@@ -42,7 +42,6 @@ import lombok.extern.slf4j.Slf4j;
 public class LaptopServiceImpl implements LaptopService {
 
     private final LaptopRepository laptopRepository;
-    // Donanım bağlantıları için repoları ekledik
     private final CpuRepository cpuRepository;
     private final GpuRepository gpuRepository;
     private final DisplayRepository displayRepository;
@@ -53,7 +52,6 @@ public class LaptopServiceImpl implements LaptopService {
     @Override
     @Transactional(readOnly = true)
     public Page<LaptopResponse> findAll(LaptopFilterRequest f, Pageable pageable) {
-        // ... (Bu kısım tamamen aynı kaldı, dokunmadım)
         log.debug("findAll called with filter: {}", f);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -119,14 +117,13 @@ public class LaptopServiceImpl implements LaptopService {
     @Transactional
     public LaptopResponse update(Integer id, LaptopRequest request) {
         Laptop existingLaptop = findOrThrow(id);
-        mapRequestToEntity(request, existingLaptop); // Eşleme metodunu çağırdık
+        mapRequestToEntity(request, existingLaptop); 
         
         Laptop saved = laptopRepository.save(existingLaptop);
         log.info("Updated (PUT) laptop id={}", id);
         return LaptopResponse.from(saved);
     }
     
-    // --- YARDIMCI METOT: DTO'dan Entity'e Eşleme ve ID ile Donanım Bulma ---
     private void mapRequestToEntity(LaptopRequest request, Laptop laptop) {
         laptop.setBrand(request.getBrand());
         laptop.setSeries(request.getSeries());
