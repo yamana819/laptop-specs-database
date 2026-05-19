@@ -1,20 +1,5 @@
 package com.laptopdb.backend.services;
 
-import com.laptopdb.backend.dto.LaptopFilterRequest;
-import com.laptopdb.backend.dto.LaptopResponse;
-import com.laptopdb.backend.entity.Laptop;
-import com.laptopdb.backend.exception.ResourceNotFoundException;
-import com.laptopdb.backend.repository.LaptopRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.*;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -23,18 +8,52 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ReflectionUtils;
+
+import com.laptopdb.backend.dto.LaptopFilterRequest;
+import com.laptopdb.backend.dto.LaptopRequest; 
+import com.laptopdb.backend.dto.LaptopResponse;
+import com.laptopdb.backend.entity.Laptop;
+import com.laptopdb.backend.exception.ResourceNotFoundException;
+import com.laptopdb.backend.repository.CpuRepository;
+import com.laptopdb.backend.repository.DisplayRepository;
+import com.laptopdb.backend.repository.GpuRepository; 
+import com.laptopdb.backend.repository.LaptopRepository;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class LaptopServiceImpl implements LaptopService {
 
     private final LaptopRepository laptopRepository;
+    // Donanım bağlantıları için repoları ekledik
+    private final CpuRepository cpuRepository;
+    private final GpuRepository gpuRepository;
+    private final DisplayRepository displayRepository;
+    
     private final EntityManager entityManager;
     private static final Pattern GPU_TIER_PATTERN = Pattern.compile("(\\d{4})");
 
     @Override
     @Transactional(readOnly = true)
     public Page<LaptopResponse> findAll(LaptopFilterRequest f, Pageable pageable) {
+        // ... (Bu kısım tamamen aynı kaldı, dokunmadım)
         log.debug("findAll called with filter: {}", f);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -87,7 +106,10 @@ public class LaptopServiceImpl implements LaptopService {
 
     @Override
     @Transactional
-    public LaptopResponse create(Laptop laptop) {
+    public LaptopResponse create(LaptopRequest request) {
+        Laptop laptop = new Laptop();
+        mapRequestToEntity(request, laptop); 
+        
         Laptop saved = laptopRepository.save(laptop);
         log.info("Created laptop id={}", saved.getId());
         return LaptopResponse.from(saved);
@@ -95,12 +117,38 @@ public class LaptopServiceImpl implements LaptopService {
 
     @Override
     @Transactional
-    public LaptopResponse update(Integer id, Laptop incoming) {
-        findOrThrow(id);
-        incoming.setId(id);
-        Laptop saved = laptopRepository.save(incoming);
+    public LaptopResponse update(Integer id, LaptopRequest request) {
+        Laptop existingLaptop = findOrThrow(id);
+        mapRequestToEntity(request, existingLaptop); // Eşleme metodunu çağırdık
+        
+        Laptop saved = laptopRepository.save(existingLaptop);
         log.info("Updated (PUT) laptop id={}", id);
         return LaptopResponse.from(saved);
+    }
+    
+    // --- YARDIMCI METOT: DTO'dan Entity'e Eşleme ve ID ile Donanım Bulma ---
+    private void mapRequestToEntity(LaptopRequest request, Laptop laptop) {
+        laptop.setBrand(request.getBrand());
+        laptop.setSeries(request.getSeries());
+        laptop.setRamCapacityGb(request.getRamCapacityGb());
+        laptop.setRamSpeedMhz(request.getRamSpeedMhz());
+        laptop.setRamType(request.getRamType());
+        laptop.setStorageCapacityGb(request.getStorageCapacityGb());
+        laptop.setStorageType(request.getStorageType());
+        laptop.setWeightKg(request.getWeightKg());
+        laptop.setThicknessMm(request.getThicknessMm());
+        laptop.setBatteryWh(request.getBatteryWh());
+        laptop.setWifiVersion(request.getWifiVersion());
+        laptop.setBluetoothVersion(request.getBluetoothVersion());
+
+        laptop.setCpu(cpuRepository.findById(request.getCpuId())
+                .orElseThrow(() -> new ResourceNotFoundException("CPU", request.getCpuId())));
+        
+        laptop.setGpu(gpuRepository.findById(request.getGpuId())
+                .orElseThrow(() -> new ResourceNotFoundException("GPU", request.getGpuId())));
+        
+        laptop.setDisplay(displayRepository.findById(request.getDisplayId())
+                .orElseThrow(() -> new ResourceNotFoundException("Display", request.getDisplayId())));
     }
 
     @Override

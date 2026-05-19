@@ -7,14 +7,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.laptopdb.backend.dto.LaptopFilterRequest;
+import com.laptopdb.backend.dto.LaptopRequest; 
 import com.laptopdb.backend.dto.LaptopResponse;
-import com.laptopdb.backend.entity.Laptop;
 
 public interface LaptopService {
     Page<LaptopResponse> findAll(LaptopFilterRequest filter, Pageable pageable);
     LaptopResponse getById(Integer id);
-    LaptopResponse create(Laptop laptop);
-    LaptopResponse update(Integer id, Laptop laptop);
+    
+    LaptopResponse create(LaptopRequest request);
+    LaptopResponse update(Integer id, LaptopRequest request);
+    
     LaptopResponse patch(Integer id, Map<String, Object> fields);
     void delete(Integer id);
     List<String> getDistinctBrands();

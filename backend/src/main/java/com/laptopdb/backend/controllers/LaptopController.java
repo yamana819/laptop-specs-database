@@ -1,25 +1,39 @@
 package com.laptopdb.backend.controllers;
 
-import com.laptopdb.backend.dto.LaptopFilterRequest;
-import com.laptopdb.backend.dto.LaptopResponse;
-import com.laptopdb.backend.dto.PagedResponse;
-import com.laptopdb.backend.entity.Laptop;
-import com.laptopdb.backend.services.LaptopService;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.net.URI;
+import java.util.List; 
+import java.util.Map;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
+
+import com.laptopdb.backend.dto.LaptopFilterRequest;
+import com.laptopdb.backend.dto.LaptopRequest;
+import com.laptopdb.backend.dto.LaptopResponse;
+import com.laptopdb.backend.dto.PagedResponse;
+import com.laptopdb.backend.services.LaptopService;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Validated
@@ -58,9 +72,9 @@ public class LaptopController {
     }
 
     @PostMapping
-    public ResponseEntity<LaptopResponse> create(@Valid @RequestBody Laptop laptop) {
-        log.info("POST /api/v1/laptops — brand={}, series={}", laptop.getBrand(), laptop.getSeries());
-        LaptopResponse created = laptopService.create(laptop);
+    public ResponseEntity<LaptopResponse> create(@Valid @RequestBody LaptopRequest request) { // DEĞİŞTİ
+        log.info("POST /api/v1/laptops — brand={}, series={}", request.getBrand(), request.getSeries());
+        LaptopResponse created = laptopService.create(request);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -73,9 +87,9 @@ public class LaptopController {
     @PutMapping("/{id}")
     public ResponseEntity<LaptopResponse> update(
             @PathVariable @Min(value = 1, message = "id must be >= 1") Integer id,
-            @Valid @RequestBody Laptop laptop) {
+            @Valid @RequestBody LaptopRequest request) { // DEĞİŞTİ
         log.info("PUT /api/v1/laptops/{}", id);
-        return ResponseEntity.ok(laptopService.update(id, laptop));
+        return ResponseEntity.ok(laptopService.update(id, request));
     }
 
     @PatchMapping("/{id}")
