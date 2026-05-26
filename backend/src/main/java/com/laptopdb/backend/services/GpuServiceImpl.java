@@ -54,6 +54,9 @@ public class GpuServiceImpl implements GpuService {
         existing.setBrand(incoming.getBrand());
         existing.setModelName(incoming.getModelName());
         existing.setVramGb(incoming.getVramGb());
+        existing.setVramType(incoming.getVramType());
+        existing.setMemoryBusBit(incoming.getMemoryBusBit());
+        existing.setTdpWatt(incoming.getTdpWatt());
         
         return GpuResponse.from(gpuRepository.save(existing));
     }

@@ -138,7 +138,10 @@ class _AdminScreenState extends State<AdminScreen>
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Theme.of(context).cardColor,
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF1A1D27)
+            : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text('Confirm Deletion', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
         content: Text(
           '"$itemName" will be deleted. Are you sure?',
@@ -480,263 +483,253 @@ class _LaptopTabState extends State<_LaptopTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: AppTheme.glassContainer(
-            context,
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(20),
-            child: Form(
-              key: _formKey,
-              child: ListView(
-                children: [
-                  _sectionTitle(context, 
-                      _editingId != null ? 'Edit Laptop' : 'New Laptop'),
-                  const SizedBox(height: 4),
-                  _buildTextField(context, _brandCtrl, 'Brand', required: true),
-                  const SizedBox(height: 10),
-                  _buildTextField(context, _seriesCtrl, 'Series', required: true),
-                  const SizedBox(height: 10),
+    final isWide = MediaQuery.of(context).size.width > 700;
 
-                  _buildDropdown<Cpu>(
-                    context: context,
-                    label: 'Processor (CPU) *',
-                    value: _selectedCpuId,
-                    items: widget.cpus,
-                    itemId: (c) => c.id,
-                    itemLabel: (c) => c.displayLabel,
-                    onChanged: (v) => setState(() => _selectedCpuId = v),
-                  ),
-                  const SizedBox(height: 10),
+    final formSection = AppTheme.glassContainer(
+      context,
+      margin: EdgeInsets.all(isWide ? 16 : 8),
+      padding: EdgeInsets.all(isWide ? 20 : 14),
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          shrinkWrap: !isWide,
+          physics: isWide ? null : const NeverScrollableScrollPhysics(),
+          children: [
+            _sectionTitle(context, 
+                _editingId != null ? 'Edit Laptop' : 'New Laptop'),
+            const SizedBox(height: 4),
+            _buildTextField(context, _brandCtrl, 'Brand', required: true),
+            const SizedBox(height: 10),
+            _buildTextField(context, _seriesCtrl, 'Series', required: true),
+            const SizedBox(height: 10),
 
-                  _buildDropdown<Gpu>(
-                    context: context,
-                    label: 'Graphics Card (GPU) *',
-                    value: _selectedGpuId,
-                    items: widget.gpus,
-                    itemId: (g) => g.id,
-                    itemLabel: (g) => g.displayLabel,
-                    onChanged: (v) => setState(() => _selectedGpuId = v),
-                  ),
-                  const SizedBox(height: 10),
+            _buildDropdown<Cpu>(
+              context: context,
+              label: 'Processor (CPU) *',
+              value: _selectedCpuId,
+              items: widget.cpus,
+              itemId: (c) => c.id,
+              itemLabel: (c) => c.displayLabel,
+              onChanged: (v) => setState(() => _selectedCpuId = v),
+            ),
+            const SizedBox(height: 10),
 
-                  _buildDropdown<d.Display>(
-                    context: context,
-                    label: 'Display *',
-                    value: _selectedDisplayId,
-                    items: widget.displays,
-                    itemId: (di) => di.id,
-                    itemLabel: (di) => di.displayLabel,
-                    onChanged: (v) => setState(() => _selectedDisplayId = v),
-                  ),
-                  const SizedBox(height: 10),
+            _buildDropdown<Gpu>(
+              context: context,
+              label: 'Graphics Card (GPU) *',
+              value: _selectedGpuId,
+              items: widget.gpus,
+              itemId: (g) => g.id,
+              itemLabel: (g) => g.displayLabel,
+              onChanged: (v) => setState(() => _selectedGpuId = v),
+            ),
+            const SizedBox(height: 10),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildTextField(context, 
-                          _ramCapacityCtrl,
-                          'RAM (GB)',
-                          required: true,
-                          keyboard: TextInputType.number,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _buildTextField(context, 
-                          _ramSpeedCtrl,
-                          'RAM Speed (MHz)',
-                          required: true,
-                          keyboard: TextInputType.number,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _buildTextField(context, 
-                          _ramTypeCtrl,
-                          'RAM Type',
-                          required: true,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
+            _buildDropdown<d.Display>(
+              context: context,
+              label: 'Display *',
+              value: _selectedDisplayId,
+              items: widget.displays,
+              itemId: (di) => di.id,
+              itemLabel: (di) => di.displayLabel,
+              onChanged: (v) => setState(() => _selectedDisplayId = v),
+            ),
+            const SizedBox(height: 10),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildTextField(context, 
-                          _storageCapacityCtrl,
-                          'Storage (GB)',
-                          required: true,
-                          keyboard: TextInputType.number,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _buildTextField(context, 
-                          _storageTypeCtrl,
-                          'Storage Type',
-                          required: true,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                SizedBox(
+                  width: isWide ? 150 : double.infinity,
+                  child: _buildTextField(context, _ramCapacityCtrl, 'RAM (GB)', required: true, keyboard: TextInputType.number),
+                ),
+                SizedBox(
+                  width: isWide ? 150 : double.infinity,
+                  child: _buildTextField(context, _ramSpeedCtrl, 'RAM Speed (MHz)', required: true, keyboard: TextInputType.number),
+                ),
+                SizedBox(
+                  width: isWide ? 150 : double.infinity,
+                  child: _buildTextField(context, _ramTypeCtrl, 'RAM Type', required: true),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildTextField(context, 
-                          _weightCtrl,
-                          'Weight (kg)',
-                          keyboard: TextInputType.number,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _buildTextField(context, 
-                          _thicknessCtrl,
-                          'Thickness (mm)',
-                          required: true,
-                          keyboard: TextInputType.number,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _buildTextField(context, 
-                          _batteryCtrl,
-                          'Battery (Wh)',
-                          required: true,
-                          keyboard: TextInputType.number,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                SizedBox(
+                  width: isWide ? 200 : double.infinity,
+                  child: _buildTextField(context, _storageCapacityCtrl, 'Storage (GB)', required: true, keyboard: TextInputType.number),
+                ),
+                SizedBox(
+                  width: isWide ? 200 : double.infinity,
+                  child: _buildTextField(context, _storageTypeCtrl, 'Storage Type', required: true),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildTextField(context, _wifiCtrl, 'WiFi Version'),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child:
-                            _buildTextField(context, _bluetoothCtrl, 'Bluetooth Version'),
-                      ),
-                    ],
-                  ),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                SizedBox(
+                  width: isWide ? 140 : double.infinity,
+                  child: _buildTextField(context, _weightCtrl, 'Weight (kg)', keyboard: TextInputType.number),
+                ),
+                SizedBox(
+                  width: isWide ? 140 : double.infinity,
+                  child: _buildTextField(context, _thicknessCtrl, 'Thickness (mm)', required: true, keyboard: TextInputType.number),
+                ),
+                SizedBox(
+                  width: isWide ? 140 : double.infinity,
+                  child: _buildTextField(context, _batteryCtrl, 'Battery (Wh)', required: true, keyboard: TextInputType.number),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
 
-                  const SizedBox(height: 20),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                SizedBox(
+                  width: isWide ? 200 : double.infinity,
+                  child: _buildTextField(context, _wifiCtrl, 'WiFi Version'),
+                ),
+                SizedBox(
+                  width: isWide ? 200 : double.infinity,
+                  child: _buildTextField(context, _bluetoothCtrl, 'Bluetooth Version'),
+                ),
+              ],
+            ),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: _saving ? null : _submit,
-                          icon: _saving
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : Icon(
-                                  _editingId != null
-                                      ? Icons.save
-                                      : Icons.add,
-                                ),
-                          label: Text(
-                              _editingId != null ? 'Update' : 'Add'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).colorScheme.primary,
-                            foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+            const SizedBox(height: 20),
+
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _saving ? null : _submit,
+                    icon: _saving
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
                             ),
+                          )
+                        : Icon(
+                            _editingId != null
+                                ? Icons.save
+                                : Icons.add,
                           ),
-                        ),
+                    label: Text(
+                        _editingId != null ? 'Update' : 'Add'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      if (_editingId != null) ...[
-                        const SizedBox(width: 10),
-                        TextButton(
-                          onPressed: _clearForm,
-                          child: Text(
-                            'Cancel',
-                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                          ),
-                        ),
-                      ],
-                    ],
+                    ),
+                  ),
+                ),
+                if (_editingId != null) ...[
+                  const SizedBox(width: 10),
+                  TextButton(
+                    onPressed: _clearForm,
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    ),
                   ),
                 ],
-              ),
+              ],
             ),
-          ),
+          ],
         ),
-
-        Expanded(
-          flex: 3,
-          child: widget.loading
-              ? _loadingCenter(context)
-              : widget.laptops.isEmpty
-                  ? Center(
-                      child: Text(
-                        'No laptops yet.',
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                      ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: widget.laptops.length,
-                      itemBuilder: (ctx, i) {
-                        final l = widget.laptops[i];
-                        return AppTheme.glassContainer(
-                          context,
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: ListTile(
-                            title: Text(
-                              '${l.brand} ${l.series}',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            subtitle: Text(
-                              '${l.cpuBrand} ${l.cpuModelName}  •  ${l.gpuBrand} ${l.gpuModelName}',
-                              style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.edit,
-                                      color: Theme.of(context).colorScheme.secondary, size: 20),
-                                  tooltip: 'Edit',
-                                  onPressed: () => _populateForEdit(l),
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.delete,
-                                      color: Theme.of(context).colorScheme.error, size: 20),
-                                  tooltip: 'Delete',
-                                  onPressed: () => _delete(l),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-        ),
-      ],
+      ),
     );
+
+    final listSection = widget.loading
+        ? _loadingCenter(context)
+        : widget.laptops.isEmpty
+            ? Center(
+                child: Text(
+                  'No laptops yet.',
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
+              )
+            : ListView.builder(
+                shrinkWrap: !isWide,
+                physics: isWide ? null : const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                itemCount: widget.laptops.length,
+                itemBuilder: (ctx, i) {
+                  final l = widget.laptops[i];
+                  return AppTheme.glassContainer(
+                    context,
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      title: Text(
+                        '${l.brand} ${l.series}',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: Text(
+                        '${l.cpuBrand} ${l.cpuModelName}  •  ${l.gpuBrand} ${l.gpuModelName}',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.edit,
+                                color: Theme.of(context).colorScheme.secondary, size: 20),
+                            tooltip: 'Edit',
+                            onPressed: () => _populateForEdit(l),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.delete,
+                                color: Theme.of(context).colorScheme.error, size: 20),
+                            tooltip: 'Delete',
+                            onPressed: () => _delete(l),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+
+    if (isWide) {
+      return Row(
+        children: [
+          Expanded(flex: 2, child: formSection),
+          Expanded(flex: 3, child: listSection),
+        ],
+      );
+    } else {
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          children: [
+            formSection,
+            const SizedBox(height: 8),
+            listSection,
+          ],
+        ),
+      );
+    }
   }
 
   Widget _buildTextField(
@@ -913,91 +906,113 @@ class _CpuTabState extends State<_CpuTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Theme.of(context).dividerColor),
-            ),
-            child: Form(
-              key: _formKey,
-              child: ListView(
-                children: [
-                  _sectionTitle(context, 
-                      _editingId != null ? 'Edit Processor' : 'New Processor'),
-                  const SizedBox(height: 4),
-                  _field(context, _brandCtrl, 'Brand', req: true),
-                  const SizedBox(height: 10),
-                  _field(context, _seriesCtrl, 'Series', req: true),
-                  const SizedBox(height: 10),
-                  _field(context, _modelNameCtrl, 'Model Name', req: true),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                          child: _field(context, _baseClockCtrl, 'Base Clock (GHz)',
-                              req: true, num: true)),
-                      const SizedBox(width: 10),
-                      Expanded(
-                          child: _field(context, _boostClockCtrl, 'Boost Clock (GHz)',
-                              num: true)),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                          child: _field(context, _coreCountCtrl, 'Cores',
-                              req: true, num: true)),
-                      const SizedBox(width: 10),
-                      Expanded(
-                          child: _field(context, _threadCountCtrl, 'Threads',
-                              req: true, num: true)),
-                      const SizedBox(width: 10),
-                      Expanded(
-                          child: _field(context, _cacheMbCtrl, 'Cache (MB)',
-                              req: true, num: true)),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  _actionButtons(context),
-                ],
-              ),
-            ),
-          ),
-        ),
+    final isWide = MediaQuery.of(context).size.width > 700;
 
-        Expanded(
-          flex: 3,
-          child: widget.loading
-              ? _loadingCenter(context)
-              : widget.cpus.isEmpty
-                  ? Center(
-                      child: Text('No processors yet.',
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)))
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: widget.cpus.length,
-                      itemBuilder: (ctx, i) {
-                        final c = widget.cpus[i];
-                        return _itemCard(context, 
-                          title: c.displayLabel,
-                          subtitle:
-                              '${c.coreCount}C/${c.threadCount}T  •  ${c.baseClockGhz} GHz  •  ${c.cacheMb} MB',
-                          onEdit: () => _populateForEdit(c),
-                          onDelete: () => _delete(c),
-                        );
-                      },
-                    ),
+    final formSection = Container(
+      margin: EdgeInsets.all(isWide ? 16 : 8),
+      padding: EdgeInsets.all(isWide ? 20 : 14),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          shrinkWrap: !isWide,
+          physics: isWide ? null : const NeverScrollableScrollPhysics(),
+          children: [
+            _sectionTitle(context, 
+                _editingId != null ? 'Edit Processor' : 'New Processor'),
+            const SizedBox(height: 4),
+            _field(context, _brandCtrl, 'Brand', req: true),
+            const SizedBox(height: 10),
+            _field(context, _seriesCtrl, 'Series', req: true),
+            const SizedBox(height: 10),
+            _field(context, _modelNameCtrl, 'Model Name', req: true),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                SizedBox(
+                  width: isWide ? 180 : double.infinity,
+                  child: _field(context, _baseClockCtrl, 'Base Clock (GHz)', req: true, num: true),
+                ),
+                SizedBox(
+                  width: isWide ? 180 : double.infinity,
+                  child: _field(context, _boostClockCtrl, 'Boost Clock (GHz)', num: true),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                SizedBox(
+                  width: isWide ? 120 : double.infinity,
+                  child: _field(context, _coreCountCtrl, 'Cores', req: true, num: true),
+                ),
+                SizedBox(
+                  width: isWide ? 120 : double.infinity,
+                  child: _field(context, _threadCountCtrl, 'Threads', req: true, num: true),
+                ),
+                SizedBox(
+                  width: isWide ? 120 : double.infinity,
+                  child: _field(context, _cacheMbCtrl, 'Cache (MB)', req: true, num: true),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _actionButtons(context),
+          ],
         ),
-      ],
+      ),
     );
+
+    final listSection = widget.loading
+        ? _loadingCenter(context)
+        : widget.cpus.isEmpty
+            ? Center(
+                child: Text('No processors yet.',
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)))
+            : ListView.builder(
+                shrinkWrap: !isWide,
+                physics: isWide ? null : const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                itemCount: widget.cpus.length,
+                itemBuilder: (ctx, i) {
+                  final c = widget.cpus[i];
+                  return _itemCard(context, 
+                    title: c.displayLabel,
+                    subtitle:
+                        '${c.coreCount}C/${c.threadCount}T  •  ${c.baseClockGhz} GHz  •  ${c.cacheMb} MB',
+                    onEdit: () => _populateForEdit(c),
+                    onDelete: () => _delete(c),
+                  );
+                },
+              );
+
+    if (isWide) {
+      return Row(
+        children: [
+          Expanded(flex: 2, child: formSection),
+          Expanded(flex: 3, child: listSection),
+        ],
+      );
+    } else {
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          children: [
+            formSection,
+            const SizedBox(height: 8),
+            listSection,
+          ],
+        ),
+      );
+    }
   }
 
   Widget _field(BuildContext context, TextEditingController ctrl, String label,
@@ -1199,86 +1214,112 @@ class _GpuTabState extends State<_GpuTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Theme.of(context).dividerColor),
-            ),
-            child: Form(
-              key: _formKey,
-              child: ListView(
-                children: [
-                  _sectionTitle(context, _editingId != null
-                      ? 'Edit Graphics Card'
-                      : 'New Graphics Card'),
-                  const SizedBox(height: 4),
-                  _field(context, _brandCtrl, 'Brand', req: true),
-                  const SizedBox(height: 10),
-                  _field(context, _modelNameCtrl, 'Model Name', req: true),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                          child: _field(context, _tdpCtrl, 'TDP (Watt)', num: true)),
-                      const SizedBox(width: 10),
-                      Expanded(
-                          child: _field(context, _vramGbCtrl, 'VRAM (GB)', num: true)),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(child: _field(context, _vramTypeCtrl, 'VRAM Type')),
-                      const SizedBox(width: 10),
-                      Expanded(
-                          child: _field(context, _memBusCtrl, 'Memory Bus (bit)',
-                              num: true)),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  _actionButtons(context),
-                ],
-              ),
-            ),
-          ),
-        ),
+    final isWide = MediaQuery.of(context).size.width > 700;
 
-        Expanded(
-          flex: 3,
-          child: widget.loading
-              ? _loadingCenter(context)
-              : widget.gpus.isEmpty
-                  ? Center(
-                      child: Text('No graphics cards yet.',
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)))
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: widget.gpus.length,
-                      itemBuilder: (ctx, i) {
-                        final g = widget.gpus[i];
-                        final parts = <String>[];
-                        if (g.vramGb != null) parts.add('${g.vramGb} GB');
-                        if (g.vramType != null) parts.add(g.vramType!);
-                        if (g.tdpWatt != null) parts.add('${g.tdpWatt}W');
-                        return _itemCard(context, 
-                          title: g.displayLabel,
-                          subtitle:
-                              parts.isEmpty ? '—' : parts.join('  •  '),
-                          onEdit: () => _populateForEdit(g),
-                          onDelete: () => _delete(g),
-                        );
-                      },
-                    ),
+    final formSection = Container(
+      margin: EdgeInsets.all(isWide ? 16 : 8),
+      padding: EdgeInsets.all(isWide ? 20 : 14),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          shrinkWrap: !isWide,
+          physics: isWide ? null : const NeverScrollableScrollPhysics(),
+          children: [
+            _sectionTitle(context, _editingId != null
+                ? 'Edit Graphics Card'
+                : 'New Graphics Card'),
+            const SizedBox(height: 4),
+            _field(context, _brandCtrl, 'Brand', req: true),
+            const SizedBox(height: 10),
+            _field(context, _modelNameCtrl, 'Model Name', req: true),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                SizedBox(
+                  width: isWide ? 180 : double.infinity,
+                  child: _field(context, _tdpCtrl, 'TDP (Watt)', num: true),
+                ),
+                SizedBox(
+                  width: isWide ? 180 : double.infinity,
+                  child: _field(context, _vramGbCtrl, 'VRAM (GB)', num: true),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                SizedBox(
+                  width: isWide ? 180 : double.infinity,
+                  child: _field(context, _vramTypeCtrl, 'VRAM Type'),
+                ),
+                SizedBox(
+                  width: isWide ? 180 : double.infinity,
+                  child: _field(context, _memBusCtrl, 'Memory Bus (bit)', num: true),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _actionButtons(context),
+          ],
         ),
-      ],
+      ),
     );
+
+    final listSection = widget.loading
+        ? _loadingCenter(context)
+        : widget.gpus.isEmpty
+            ? Center(
+                child: Text('No graphics cards yet.',
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)))
+            : ListView.builder(
+                shrinkWrap: !isWide,
+                physics: isWide ? null : const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                itemCount: widget.gpus.length,
+                itemBuilder: (ctx, i) {
+                  final g = widget.gpus[i];
+                  final parts = <String>[];
+                  if (g.vramGb != null) parts.add('${g.vramGb} GB');
+                  if (g.vramType != null) parts.add(g.vramType!);
+                  if (g.tdpWatt != null) parts.add('${g.tdpWatt}W');
+                  return _itemCard(context, 
+                    title: g.displayLabel,
+                    subtitle:
+                        parts.isEmpty ? '—' : parts.join('  •  '),
+                    onEdit: () => _populateForEdit(g),
+                    onDelete: () => _delete(g),
+                  );
+                },
+              );
+
+    if (isWide) {
+      return Row(
+        children: [
+          Expanded(flex: 2, child: formSection),
+          Expanded(flex: 3, child: listSection),
+        ],
+      );
+    } else {
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          children: [
+            formSection,
+            const SizedBox(height: 8),
+            listSection,
+          ],
+        ),
+      );
+    }
   }
 
   Widget _field(BuildContext context, TextEditingController ctrl, String label,
@@ -1475,79 +1516,99 @@ class _DisplayTabState extends State<_DisplayTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Theme.of(context).dividerColor),
-            ),
-            child: Form(
-              key: _formKey,
-              child: ListView(
-                children: [
-                  _sectionTitle(context, 
-                      _editingId != null ? 'Edit Display' : 'New Display'),
-                  const SizedBox(height: 4),
-                  _field(context, _sizeCtrl, 'Size (inch)', req: true, num: true),
-                  const SizedBox(height: 10),
-                  _field(context, _resolutionCtrl, 'Resolution', req: true),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                          child: _field(context, _refreshCtrl, 'Refresh Rate (Hz)',
-                              req: true, num: true)),
-                      const SizedBox(width: 10),
-                      Expanded(
-                          child: _field(context, _panelCtrl, 'Panel Type', req: true)),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  _field(context, _brightnessCtrl, 'Brightness (nits)', num: true),
-                  const SizedBox(height: 20),
-                  _actionButtons(context),
-                ],
-              ),
-            ),
-          ),
-        ),
+    final isWide = MediaQuery.of(context).size.width > 700;
 
-        Expanded(
-          flex: 3,
-          child: widget.loading
-              ? _loadingCenter(context)
-              : widget.displays.isEmpty
-                  ? Center(
-                      child: Text('No displays yet.',
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)))
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: widget.displays.length,
-                      itemBuilder: (ctx, i) {
-                        final di = widget.displays[i];
-                        final sub = <String>[
-                          di.panelType,
-                        ];
-                        if (di.brightnessNits != null) {
-                          sub.add('${di.brightnessNits} nits');
-                        }
-                        return _itemCard(context, 
-                          title: di.displayLabel,
-                          subtitle: sub.join('  •  '),
-                          onEdit: () => _populateForEdit(di),
-                          onDelete: () => _delete(di),
-                        );
-                      },
-                    ),
+    final formSection = Container(
+      margin: EdgeInsets.all(isWide ? 16 : 8),
+      padding: EdgeInsets.all(isWide ? 20 : 14),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          shrinkWrap: !isWide,
+          physics: isWide ? null : const NeverScrollableScrollPhysics(),
+          children: [
+            _sectionTitle(context, 
+                _editingId != null ? 'Edit Display' : 'New Display'),
+            const SizedBox(height: 4),
+            _field(context, _sizeCtrl, 'Size (inch)', req: true, num: true),
+            const SizedBox(height: 10),
+            _field(context, _resolutionCtrl, 'Resolution', req: true),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                SizedBox(
+                  width: isWide ? 180 : double.infinity,
+                  child: _field(context, _refreshCtrl, 'Refresh Rate (Hz)', req: true, num: true),
+                ),
+                SizedBox(
+                  width: isWide ? 180 : double.infinity,
+                  child: _field(context, _panelCtrl, 'Panel Type', req: true),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            _field(context, _brightnessCtrl, 'Brightness (nits)', num: true),
+            const SizedBox(height: 20),
+            _actionButtons(context),
+          ],
         ),
-      ],
+      ),
     );
+
+    final listSection = widget.loading
+        ? _loadingCenter(context)
+        : widget.displays.isEmpty
+            ? Center(
+                child: Text('No displays yet.',
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)))
+            : ListView.builder(
+                shrinkWrap: !isWide,
+                physics: isWide ? null : const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                itemCount: widget.displays.length,
+                itemBuilder: (ctx, i) {
+                  final di = widget.displays[i];
+                  final sub = <String>[
+                    di.panelType,
+                  ];
+                  if (di.brightnessNits != null) {
+                    sub.add('${di.brightnessNits} nits');
+                  }
+                  return _itemCard(context, 
+                    title: di.displayLabel,
+                    subtitle: sub.join('  •  '),
+                    onEdit: () => _populateForEdit(di),
+                    onDelete: () => _delete(di),
+                  );
+                },
+              );
+
+    if (isWide) {
+      return Row(
+        children: [
+          Expanded(flex: 2, child: formSection),
+          Expanded(flex: 3, child: listSection),
+        ],
+      );
+    } else {
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          children: [
+            formSection,
+            const SizedBox(height: 8),
+            listSection,
+          ],
+        ),
+      );
+    }
   }
 
   Widget _field(BuildContext context, TextEditingController ctrl, String label,

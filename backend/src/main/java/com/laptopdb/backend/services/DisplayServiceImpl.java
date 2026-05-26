@@ -58,6 +58,7 @@ public class DisplayServiceImpl implements DisplayService {
         existing.setResolution(incoming.getResolution());
         existing.setRefreshRateHz(incoming.getRefreshRateHz());
         existing.setPanelType(incoming.getPanelType());
+        existing.setBrightnessNits(incoming.getBrightnessNits());
         
         return DisplayResponse.from(displayRepository.save(existing));
     }
